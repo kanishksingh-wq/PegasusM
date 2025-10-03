@@ -1,4 +1,3 @@
-import React from 'react'
 import { Product } from '../types'
 import { formatMoney } from '../utils/format'
 import { useCart } from '../cart/useCart'

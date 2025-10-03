@@ -1,8 +1,10 @@
-import React, { useEffect, useMemo, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import ProductGrid from './components/ProductGrid'
 import SkeletonCard from './components/SkeletonCard'
 import { fetchProducts, isMockMode } from './lib/shopify'
 import type { Product } from './types'
+import CartButton from './components/CartButton'
+import CartDrawer from './components/CartDrawer'
 
 export default function App() {
   const [products, setProducts] = useState<Product[]>([])
@@ -54,6 +56,7 @@ export default function App() {
               <span className="badge badge--ok" title="Live Shopify Storefront API">Live</span>
             )}
           </div>
+          <CartButton />
         </div>
       </header>
 
@@ -85,6 +88,8 @@ export default function App() {
           <small>© {new Date().getFullYear()} Pegasus. Built with React + TypeScript + Vite.</small>
         </div>
       </footer>
+
+      <CartDrawer />
     </div>
   )
 }

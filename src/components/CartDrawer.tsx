@@ -1,10 +1,13 @@
-import { useEffect, useRef } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { useCart } from '../cart/useCart'
 import { formatMoney } from '../utils/format'
+import { initRazorpayCheckout, toSubunits } from '../lib/razorpay'
 
 export default function CartDrawer() {
-  const { items, total, isOpen, close, setQuantity, removeItem, count } = useCart()
+  const { items, total, isOpen, close, setQuantity, removeItem, count, clear } = useCart()
   const panelRef = useRef<HTMLDivElement | null>(null)
+  const [status, setStatus] = useState<'idle' | 'processing' | 'success' | 'failure'>('idle')
+  const [message, setMessage] = useState('')
 
   useEffect(() => {
     function onKey(e: KeyboardEvent) {
@@ -20,6 +23,31 @@ export default function CartDrawer() {
     }
     return () => document.removeEventListener('keydown', onKey)
   }, [isOpen, close])
+
+  async function onCheckout() {
+    try {
+      setStatus('processing')
+      setMessage('Processing payment...')
+      const { amountSubunits, currency } = toSubunits(total)
+      const result = await initRazorpayCheckout({
+        amountSubunits,
+        currency,
+        name: 'Pegasus Storefront',
+        description: `${count} item${count === 1 ? '' : 's'}`,
+      })
+      if (result.status === 'success') {
+        setStatus('success')
+        setMessage('Payment successful. Thank you!')
+        clear()
+      } else {
+        setStatus('failure')
+        setMessage(result.reason || 'Payment failed')
+      }
+    } catch (err) {
+      setStatus('failure')
+      setMessage('Payment could not be initiated')
+    }
+  }
 
   if (!isOpen) return null
 
@@ -46,6 +74,12 @@ export default function CartDrawer() {
         <p id={descId} className="drawer__summary">
           {count} item{count === 1 ? '' : 's'} · {formatMoney(total.amount, total.currencyCode)}
         </p>
+
+        {status !== 'idle' && (
+          <div className={`alert ${status === 'failure' ? 'alert--error' : ''}`} role={status === 'failure' ? 'alert' : 'status'} aria-live="polite">
+            <div>{message}</div>
+          </div>
+        )}
 
         <div className="drawer__body" role="list" aria-label="Cart items">
           {items.length === 0 ? (
@@ -101,7 +135,15 @@ export default function CartDrawer() {
             <span className="muted">Total</span>
             <strong>{formatMoney(total.amount, total.currencyCode)}</strong>
           </div>
-          <button className="btn btn--primary" disabled={items.length === 0} onClick={close} aria-label="Proceed to checkout (mock)">Checkout</button>
+          <button
+            className="btn btn--primary"
+            disabled={items.length === 0 || status === 'processing'}
+            onClick={onCheckout}
+            aria-label={status === 'processing' ? 'Processing payment' : 'Proceed to checkout'}
+            aria-busy={status === 'processing' ? 'true' : 'false'}
+          >
+            {status === 'processing' ? 'Processing…' : 'Checkout'}
+          </button>
         </footer>
       </div>
     </div>
