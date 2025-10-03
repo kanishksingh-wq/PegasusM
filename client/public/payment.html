@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Razorpay Checkout</title>
+</head>
+<body>
+  <h1>Razorpay Standard Checkout</h1>
+  <button id="pay-button">Pay Now</button>
+
+  <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+  <script type="module">
+    import { initRazorpayCheckout } from '../src/razorpay.ts';
+
+    document.getElementById('pay-button').addEventListener('click', () => {
+      initRazorpayCheckout(500); // Example amount: 500 INR
+    });
+  </script>
+</body>
+</html>
