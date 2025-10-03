@@ -1,4 +1,5 @@
-import React, { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react'
+import { createContext, createElement, useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react'
+import type { ReactNode } from 'react'
 import type { Product, Money } from '../types'
 import { addToCart as addFn, getCartTotal as totalFn, removeFromCart, updateQuantity, getCartCount, type Cart } from './cart'
 
@@ -39,7 +40,7 @@ function writeStorage(items: Cart) {
   } catch {}
 }
 
-export function CartProvider({ children }: { children: React.ReactNode }) {
+export function CartProvider({ children }: { children: ReactNode }) {
   const [items, setItems] = useState<Cart>(() => readStorage())
   const [isOpen, setIsOpen] = useState(false)
   const lastFocusedElRef = useRef<HTMLElement | null>(null)
@@ -93,7 +94,7 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
     lastFocusedEl: lastFocusedElRef.current,
   }
 
-  return <CartContext.Provider value={value}>{children}</CartContext.Provider>
+  return createElement(CartContext.Provider, { value }, children as any)
 }
 
 export function useCart() {

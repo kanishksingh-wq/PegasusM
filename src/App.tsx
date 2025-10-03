@@ -11,6 +11,9 @@ export default function App() {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [reloadKey, setReloadKey] = useState(0)
+  const [search, setSearch] = useState('')
+  const [page, setPage] = useState(1)
+  const pageSize = 6
 
   const mock = useMemo(() => isMockMode(), [])
 
@@ -42,6 +45,24 @@ export default function App() {
 
   const handleRetry = () => setReloadKey((k) => k + 1)
 
+  // Derived search + pagination
+  const filtered = useMemo(() => {
+    const q = search.trim().toLowerCase()
+    if (!q) return products
+    return products.filter((p) =>
+      [p.title, p.description ?? '', p.handle ?? ''].some((t) => t.toLowerCase().includes(q))
+    )
+  }, [products, search])
+
+  const totalPages = Math.max(1, Math.ceil(filtered.length / pageSize))
+  const currentPage = Math.min(page, totalPages)
+  const start = (currentPage - 1) * pageSize
+  const pageItems = filtered.slice(start, start + pageSize)
+
+  useEffect(() => {
+    setPage(1)
+  }, [search])
+
   return (
     <div className="app">
       <a href="#main-content" className="skip-link">Skip to content</a>
@@ -61,6 +82,19 @@ export default function App() {
       </header>
 
       <main id="main-content" className="container" role="main" aria-busy={loading ? 'true' : 'false'}>
+        <div className="toolbar" aria-label="Product toolbar">
+          <label className="sr-only" htmlFor="search-input">Search products</label>
+          <input
+            id="search-input"
+            className="search-input"
+            type="search"
+            placeholder="Search products…"
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            aria-label="Search products"
+          />
+        </div>
+
         {error && (
           <div role="alert" className="alert alert--error">
             <div>
@@ -79,7 +113,30 @@ export default function App() {
             ))}
           </div>
         ) : (
-          <ProductGrid products={products} />
+          <>
+            <ProductGrid products={pageItems} />
+            <nav className="pagination" aria-label="Pagination">
+              <button
+                className="btn"
+                onClick={() => setPage((p) => Math.max(1, p - 1))}
+                disabled={currentPage <= 1}
+                aria-label="Previous page"
+              >
+                Previous
+              </button>
+              <span className="pagination__status" aria-live="polite">
+                Page {currentPage} of {totalPages}
+              </span>
+              <button
+                className="btn"
+                onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
+                disabled={currentPage >= totalPages}
+                aria-label="Next page"
+              >
+                Next
+              </button>
+            </nav>
+          </>
         )}
       </main>
 
