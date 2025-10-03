@@ -1,12 +1,14 @@
 import React from 'react'
 import { Product } from '../types'
 import { formatMoney } from '../utils/format'
+import { useCart } from '../cart/useCart'
 
 type Props = {
   product: Product
 }
 
 export default function ProductCard({ product }: Props) {
+  const { addToCart } = useCart()
   const img = product.images?.[0]
   const priceMin = product.priceRange.minVariantPrice
   const priceMax = product.priceRange.maxVariantPrice
@@ -40,6 +42,15 @@ export default function ProductCard({ product }: Props) {
           </p>
         </div>
       </a>
+      <div className="card__actions">
+        <button
+          className="btn btn--primary"
+          onClick={() => addToCart(product, 1)}
+          aria-label={`Add ${product.title} to cart`}
+        >
+          Add to cart
+        </button>
+      </div>
     </article>
   )
 }
