@@ -1,12 +1,15 @@
 import React from 'react';
-import { Product } from './types';
-import './ProductGrid.css';
+import { Product } from '../types';
+import { useCart } from './CartContext';
+import '../ProductGrid.css';
 
-interface ProductGridProps {
+interface ProductListProps {
   products: Product[];
 }
 
-const ProductGrid: React.FC<ProductGridProps> = ({ products }) => {
+const ProductList: React.FC<ProductListProps> = ({ products }) => {
+  const { addToCart } = useCart();
+
   return (
     <div className="product-grid" aria-label="List of products">
       {products.map((product) => (
@@ -20,13 +23,13 @@ const ProductGrid: React.FC<ProductGridProps> = ({ products }) => {
           <p className="product-price">
             {product.priceRange.minVariantPrice.amount} {product.priceRange.minVariantPrice.currencyCode}
           </p>
-          <a href={`/products/${product.handle}`} className="product-link" aria-label={`View details for ${product.title}`}>
-            View Details
-          </a>
+          <button onClick={() => addToCart(product)} aria-label={`Add ${product.title} to cart`}>
+            Add to Cart
+          </button>
         </div>
       ))}
     </div>
   );
 };
 
-export default ProductGrid;
+export default ProductList;

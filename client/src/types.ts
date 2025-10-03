@@ -1,4 +1,5 @@
 export interface Product {
+
   id: string;
   title: string;
   handle: string;
@@ -17,4 +18,8 @@ export interface Product {
       currencyCode: string;
     };
   };
+}
+
+export interface CartItem extends Product {
+  quantity: number;
 }

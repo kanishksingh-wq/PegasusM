@@ -2,7 +2,9 @@ import React, { useEffect, useState } from 'react';
 import { fetchProducts } from './fetchProducts';
 import { mockProducts } from './mockData';
 import { Product } from './types';
-import ProductGrid from './ProductGrid';
+import ProductList from './cart/ProductList';
+import Cart from './cart/Cart';
+import { CartProvider } from './cart/CartContext';
 import './App.css';
 
 function App() {
@@ -29,16 +31,19 @@ function App() {
   }, []);
 
   return (
-    <div className="App">
-      <header className="App-header">
-        <h1>My Shopify Store</h1>
-      </header>
-      <main>
-        {loading && <p>Loading products...</p>}
-        {error && <p>{error}</p>}
-        {!loading && !error && <ProductGrid products={products} />}
-      </main>
-    </div>
+    <CartProvider>
+      <div className="App">
+        <header className="App-header">
+          <h1>My Shopify Store</h1>
+        </header>
+        <main>
+          <Cart />
+          {loading && <p>Loading products...</p>}
+          {error && <p>{error}</p>}
+          {!loading && !error && <ProductList products={products} />}
+        </main>
+      </div>
+    </CartProvider>
   );
 }
 
